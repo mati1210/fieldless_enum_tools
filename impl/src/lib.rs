@@ -15,3 +15,5 @@ macro_rules! new_derive {
         }
     };
 }
+
+new_derive! {All, attributes(all_doc)}

@@ -1,0 +1,5 @@
+error: #[derive(All)] expected an enum, yet a struct was provided
+ --> tests/All/fail/not-an-enum.rs:4:1
+  |
+4 | struct NotAnEnum {
+  | ^^^^^^

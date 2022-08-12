@@ -1,0 +1,5 @@
+error: enum variant A has data on it! #[derive(All) can only be run on fieldless enums
+ --> tests/All/fail/enum-with-data.rs:5:5
+  |
+5 |     A(u8),
+  |     ^^^^^

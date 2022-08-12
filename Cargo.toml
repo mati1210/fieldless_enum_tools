@@ -17,7 +17,7 @@ std = []
 alloc = []
 
 [workspace]
-include = ["impl"]
+members = ["impl"]
 
 [dev-dependencies]
 trybuild = "1.0"

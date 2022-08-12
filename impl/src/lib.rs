@@ -18,3 +18,4 @@ macro_rules! new_derive {
 
 new_derive! {All, attributes(all_doc)}
 new_derive! {Not, attributes(not)}
+new_derive! {FromToStr, attributes(fromtostr)}

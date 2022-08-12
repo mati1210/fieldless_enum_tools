@@ -1,0 +1,5 @@
+error: expected attribute arguments in parentheses: #[not(...)]
+ --> tests/Not/fail/emptynot.rs:5:5
+  |
+5 |     #[not]
+  |     ^^^^^^

@@ -126,18 +126,18 @@ impl FormatCase {
         };
         let no_sep_error =
             || Error::new(attr_span, r#"style = "delimited" needs a separator value"#);
-        Ok(match &*style {
+        Ok(match style.trim() {
             "none" | "PascalCase" => FormatCase::None,
             "lower" => FormatCase::Lower,
             "UPPER" => FormatCase::Upper,
-            "snake_case" => FormatCase::Snake,
-            "SCREAMING_SNAKE_CASE" => FormatCase::ScreamingSnake,
-            "kebab-case" => FormatCase::Kebab,
-            "SCREAMING-KEBAB-CASE" => FormatCase::ScreamingKebab,
-            "camelCase" => FormatCase::Camel,
-            "camel_Snake_Case" => FormatCase::CamelSnake,
-            "Pascal_Snake_Case" => FormatCase::PascalSnake,
-            "Train-Case" => FormatCase::Train,
+            "snake" => FormatCase::Snake,
+            "SCREAMING_SNAKE" => FormatCase::ScreamingSnake,
+            "kebab" => FormatCase::Kebab,
+            "SCREAMING-KEBAB" => FormatCase::ScreamingKebab,
+            "camel" => FormatCase::Camel,
+            "camel_Snake" => FormatCase::CamelSnake,
+            "Pascal_Snake" => FormatCase::PascalSnake,
+            "Train" => FormatCase::Train,
             "delimited" => {
                 if let Some(sep) = separator {
                     FormatCase::Delimited { sep }

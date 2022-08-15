@@ -1,3 +1,4 @@
+use proc_macro2::{Span, TokenStream};
 use syn::{Attribute, Data, DataEnum, Error, Fields, LitStr};
 
 #[inline]
@@ -74,5 +75,41 @@ pub fn opt_as_deref<T: std::ops::Deref>(this: &Option<T>) -> Option<&T::Target> 
     match this.as_ref() {
         Some(t) => Some(&**t),
         None => None,
+    }
+}
+
+#[derive(Clone)]
+pub struct SpannedString {
+    pub string: String,
+    pub span: Span,
+}
+impl SpannedString {
+    #[inline]
+    pub fn new(string: String, span: Span) -> Self {
+        Self { string, span }
+    }
+}
+impl quote::ToTokens for SpannedString {
+    #[inline]
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        self.string.to_tokens(tokens)
+    }
+}
+impl From<syn::LitStr> for SpannedString {
+    #[inline]
+    fn from(litstr: syn::LitStr) -> Self {
+        Self {
+            string: litstr.value(),
+            span: litstr.span(),
+        }
+    }
+}
+impl From<syn::Ident> for SpannedString {
+    #[inline]
+    fn from(ident: syn::Ident) -> Self {
+        Self {
+            string: ident.to_string(),
+            span: ident.span(),
+        }
     }
 }

@@ -2,9 +2,11 @@ mod attrs;
 use std::collections::HashMap;
 
 use attrs::{inner::Attrs as InnerAttrs, outer::Attrs as OuterAttrs};
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 use syn::Error;
+
+use crate::utils::SpannedString;
 
 pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
     let data = crate::utils::check_if_fieldless_enum("FromToStr", input.data)?;
@@ -32,18 +34,19 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
 }
 
 fn check_if_duplicate(fmtd: &[FormattedVariant]) -> syn::Result<()> {
-    let mut hashes = HashMap::new();
+    let mut hashes = HashMap::with_capacity(fmtd.len());
 
-    for (str, span1) in fmtd.iter().flat_map(FormattedVariant::iter) {
+    for fmt in fmtd.iter().flat_map(FormattedVariant::iter) {
+        let str = &fmt.string;
+        let span1 = &fmt.span;
         // if there was already this string on the hashmap, error
         if let Some(span2) = hashes.insert(str, span1) {
-            let mut error = Error::new(*span1, format!("duplicate value! both are [{}]", str));
-            error.combine(Error::new(
-                *span2,
-                format!("duplicate value! both are [{}]", str),
-            ));
-
-            return Err(error);
+            let err_msg = format!("duplicate value! both are [{}]", str);
+            return Err({
+                let mut error = Error::new(*span1, &err_msg);
+                error.combine(Error::new(*span2, &err_msg));
+                error
+            });
         }
     }
     Ok(())
@@ -51,8 +54,8 @@ fn check_if_duplicate(fmtd: &[FormattedVariant]) -> syn::Result<()> {
 
 pub struct FormattedVariant {
     original: Ident,
-    formatted: (String, Span),
-    aliases: Vec<(String, Span)>,
+    formatted: SpannedString,
+    aliases: Vec<SpannedString>,
 }
 
 impl FormattedVariant {
@@ -65,19 +68,19 @@ impl FormattedVariant {
                     use attrs::inner::Rename;
                     match ren {
                         Rename::Renamed(ren) => ren,
-                        Rename::Format(f) => (f.format(&ident), span),
+                        Rename::Format(f) => SpannedString::new(f.format(&ident), span),
                     }
                 } else if let Some(ref f) = outer_attr.format {
-                    (f.format(&ident), span)
+                    SpannedString::new(f.format(&ident), span)
                 } else {
-                    (ident, span)
+                    SpannedString::new(ident, span)
                 }
             },
             original: ident,
             aliases: inner_attr.aliases.map(|a| a.0).unwrap_or_default(),
         }
     }
-    pub fn iter(&self) -> impl Iterator<Item = &(String, Span)> {
+    pub fn iter(&self) -> impl Iterator<Item = &SpannedString> {
         self.aliases.iter().chain(std::iter::once(&self.formatted))
     }
 }
@@ -112,13 +115,13 @@ impl Impl {
 
         for f in formatted {
             let ident = &f.original;
-            let formatted = &f.formatted.0;
+            let formatted = &f.formatted;
 
             as_str.extend(quote! {
                 #typ::#ident => #formatted,
             });
 
-            let strings = f.iter().map(|s| &s.0);
+            let strings = f.iter();
             from_str.extend(quote! {
                 #(#strings )|* => #typ::#ident,
             });

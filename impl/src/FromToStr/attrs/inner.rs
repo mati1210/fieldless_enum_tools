@@ -1,5 +1,6 @@
-use proc_macro2::Span;
 use syn::{spanned::Spanned, Lit, MetaList, NestedMeta};
+
+use crate::utils::SpannedString;
 
 pub struct Attrs {
     pub aliases: Option<Aliases>,
@@ -22,7 +23,7 @@ impl Attrs {
 }
 
 pub enum Rename {
-    Renamed((String, Span)),
+    Renamed(SpannedString),
     Format(super::FormatCase),
 }
 
@@ -38,7 +39,7 @@ impl Rename {
 
         let mut nested = attr.nested.into_iter();
         if let Some(NestedMeta::Lit(Lit::Str(s))) = nested.next() {
-            string = Some((s.value(), s.span()));
+            string = Some(s.into());
         }
 
         // if there's more than one thing inside the attr, error
@@ -50,7 +51,7 @@ impl Rename {
     }
 }
 
-pub struct Aliases(pub Vec<(String, Span)>);
+pub struct Aliases(pub Vec<SpannedString>);
 
 impl Aliases {
     pub fn from_attr(attr: MetaList) -> syn::Result<Self> {
@@ -60,7 +61,7 @@ impl Aliases {
         let mut vec = Vec::with_capacity(attr.nested.len());
         for nested in attr.nested {
             if let NestedMeta::Lit(Lit::Str(s)) = nested {
-                vec.push((s.value(), s.span()));
+                vec.push(s.into());
             } else {
                 return Err(malformed_err());
             }

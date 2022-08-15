@@ -21,12 +21,19 @@ impl Attrs {
     }
 }
 
-pub struct Rename(pub (String, Span));
+pub enum Rename {
+    Renamed((String, Span)),
+    Format(super::FormatCase),
+}
 
 impl Rename {
     pub fn from_attr(attr: MetaList) -> syn::Result<Self> {
         let attr_span = attr.span();
-        let malformed_err = malformed_err!(attr_span, r#"rename("...")"#);
+        let malformed_err = malformed_err!(attr_span, r#"rename("...") or rename(style = "...")"#);
+
+        if let Ok(format) = super::FormatCase::from_attr(&attr, malformed_err) {
+            return Ok(Rename::Format(format));
+        }
         let mut string = None;
 
         let mut nested = attr.nested.into_iter();
@@ -39,7 +46,7 @@ impl Rename {
             return Err(malformed_err());
         }
 
-        Ok(Self(string.ok_or_else(malformed_err)?))
+        Ok(Rename::Renamed(string.ok_or_else(malformed_err)?))
     }
 }
 

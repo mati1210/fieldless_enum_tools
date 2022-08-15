@@ -62,7 +62,11 @@ impl FormattedVariant {
                 let span = ident.span();
                 let ident = ident.to_string();
                 if let Some(ren) = inner_attr.rename {
-                    ren.0
+                    use attrs::inner::Rename;
+                    match ren {
+                        Rename::Renamed(ren) => ren,
+                        Rename::Format(f) => (f.format(&ident), span),
+                    }
                 } else if let Some(ref f) = outer_attr.format {
                     (f.format(&ident), span)
                 } else {

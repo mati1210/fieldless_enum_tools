@@ -81,7 +81,7 @@ pub use fieldless_enum_tools_impl::Not;
 ///
 /// ---
 ///
-/// `#[fromtostr(format(style = "...", separator = "..."))]`
+/// `#[fromtostr(format(style = "...", separator = "..."?))]`
 /// Format variants using specified style
 ///
 /// **Possible Values**
@@ -106,11 +106,15 @@ pub use fieldless_enum_tools_impl::Not;
 ///
 /// ## Inner
 ///
-/// `#[fromtostr(aliases("..."*))]
+/// `#[fromtostr(aliases("..."*))]`
+///
 /// Specifies one (or more aliases) for this variant
 ///
-/// `#[fromtostr(rename("..."))]
-/// Renames this variant
+/// ---
+///
+/// `#[fromtostr(rename("..."))]` or `#[fromtostr(rename(style = "...", separator = "..."?))]`
+///
+/// Renames this variant with specified string or specified format style
 
 ///
 /// [^alloc]: if crate feature `std` or `alloc` avaliable.

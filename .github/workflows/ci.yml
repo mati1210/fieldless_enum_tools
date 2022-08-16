@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rust:
+          - "stable"
+          - "nightly"
+          - "1.36" # MSRV
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+          profile: minimal
+          components: clippy, rustfmt
+
+      - name: test
+        run: |
+          if [ ${{ matrix.rust }} != "1.36" ]
+          then cargo test --all-features --workspace
+          else cargo test --all-features --all
+          fi
+
+      - name: fmt
+        if: ${{ matrix.rust == 'stable' }}
+        run: cargo fmt -- --check
+
+      - name: clippy
+        run: cargo clippy --all-features

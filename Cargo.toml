@@ -21,7 +21,14 @@ members = ["impl", "impl/internals"]
 
 [dev-dependencies]
 trybuild = "1.0"
+criterion = "0.3"
+fieldless_enum_tools_internals = { path = "impl/internals" }
+syn = "1.0"
 
 [[test]]
 name = "tests"
 path = "tests/mod.rs"
+
+[[bench]]
+name = "bench"
+harness = false

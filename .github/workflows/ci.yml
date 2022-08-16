@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         rust:
           - "stable"
@@ -31,6 +32,11 @@ jobs:
           override: true
           profile: minimal
           components: clippy, rustfmt
+
+      # hack for making tests work, since criterion requires a high msrv
+      - name: ignore benchmark
+        if: ${{ matrix.rust == '1.36' }}
+        run: sed -i 24d Cargo.toml
 
       - name: test
         run: |

@@ -33,21 +33,12 @@ jobs:
           profile: minimal
           components: clippy, rustfmt
 
-      # hack for making tests work, since criterion requires a high msrv
-      - name: ignore benchmark
-        if: ${{ matrix.rust == '1.36' }}
-        run: sed -i 24d Cargo.toml
-
       - name: test
-        run: |
-          if [ ${{ matrix.rust }} != "1.36" ]
-          then cargo test --all-features --workspace
-          else cargo test --all-features --all
-          fi
+        run: cargo test --all --features serde
 
       - name: fmt
-        if: ${{ matrix.rust == 'stable' }}
+        if: matrix.rust == 'stable'
         run: cargo fmt -- --check
 
       - name: clippy
-        run: cargo clippy --all-features
+        run: cargo clippy --features serde

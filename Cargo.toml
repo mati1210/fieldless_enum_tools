@@ -7,9 +7,11 @@ repository = "https://github.com/matheuz1210/fieldless-enum-tools"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-fieldless_enum_tools_impl = { version = "0.1.0", path = "impl" }
-serde = { version = "1.0.142", optional = true }
+fieldless_enum_tools_impl = { version = "^0.1.0", path = "impl" }
+serde = { version = "1.0", optional = true }
 
+# has to be normal dependecy because it dev-dependencies can't be optional
+criterion = { version = "0.3", optional = true }
 
 [features]
 default = ["std"]
@@ -21,7 +23,6 @@ members = ["impl", "impl/internals"]
 
 [dev-dependencies]
 trybuild = "1.0"
-criterion = "0.3"
 fieldless_enum_tools_internals = { path = "impl/internals" }
 syn = "1.0"
 
@@ -30,5 +31,6 @@ name = "tests"
 path = "tests/mod.rs"
 
 [[bench]]
+required-features = ["criterion"]
 name = "bench"
 harness = false

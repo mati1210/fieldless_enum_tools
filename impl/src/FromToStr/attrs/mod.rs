@@ -158,7 +158,7 @@ impl FormatCase {
         }
     }
 
-    fn delimit(sep: &str, s: &str) -> String {
+    pub fn delimit(sep: &str, s: &str) -> String {
         let mut string = String::with_capacity(s.len() + (4 * sep.len()));
         let mut chars = s.chars().peekable();
         // don't try to add an separator at the start

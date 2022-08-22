@@ -54,7 +54,7 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
     })
 }
 
-fn get_with_attrs(
+pub fn get_with_attrs(
     typ: &Ident,
     vars: Punctuated<Variant, syn::token::Comma>,
 ) -> syn::Result<TokenStream> {

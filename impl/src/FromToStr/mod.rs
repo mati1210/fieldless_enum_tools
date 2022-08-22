@@ -1,4 +1,4 @@
-mod attrs;
+pub mod attrs;
 use std::collections::HashMap;
 
 use attrs::{inner::Attrs as InnerAttrs, outer::Attrs as OuterAttrs};
@@ -33,7 +33,7 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
     Ok(tree)
 }
 
-fn check_if_duplicate(fmtd: &[FormattedVariant]) -> syn::Result<()> {
+pub fn check_if_duplicate(fmtd: &[FormattedVariant]) -> syn::Result<()> {
     let mut hashes = HashMap::with_capacity(fmtd.len());
 
     for fmt in fmtd.iter().flat_map(FormattedVariant::iter) {

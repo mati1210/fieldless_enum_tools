@@ -33,7 +33,7 @@ impl Rename {
         let malformed_err = malformed_err!(attr_span, r#"rename("...") or rename(style = "...")"#);
 
         if let Ok(format) = super::FormatCase::from_attr(&attr, malformed_err) {
-            return Ok(Rename::Format(format));
+            return Ok(Self::Format(format));
         }
         let mut string = None;
 
@@ -47,7 +47,7 @@ impl Rename {
             return Err(malformed_err());
         }
 
-        Ok(Rename::Renamed(string.ok_or_else(malformed_err)?))
+        Ok(Self::Renamed(string.ok_or_else(malformed_err)?))
     }
 }
 

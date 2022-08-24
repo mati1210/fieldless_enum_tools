@@ -19,7 +19,7 @@ jobs:
         rust:
           - "stable"
           - "nightly"
-          - "1.36" # MSRV
+          - "1.37" # MSRV
 
     steps:
       - name: checkout

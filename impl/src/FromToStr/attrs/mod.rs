@@ -34,6 +34,7 @@ macro_rules! malformed_err {
 pub mod inner;
 pub mod outer;
 
+#[allow(dead_code)] // triggers before 1.45
 pub enum FormatCase {
     /// keep it as is
     None,
@@ -99,34 +100,34 @@ impl FormatCase {
         let no_sep_error =
             || Error::new(attr_span, r#"style = "delimited" needs a separator value"#);
         Ok(match style.trim() {
-            "none" | "PascalCase" => FormatCase::None,
-            "lower" => FormatCase::Lower,
-            "UPPER" => FormatCase::Upper,
-            "snake" => FormatCase::Snake,
-            "SCREAMING_SNAKE" => FormatCase::ScreamingSnake,
-            "kebab" => FormatCase::Kebab,
-            "SCREAMING-KEBAB" => FormatCase::ScreamingKebab,
-            "camel" => FormatCase::Camel,
-            "camel_Snake" => FormatCase::CamelSnake,
-            "Pascal_Snake" => FormatCase::PascalSnake,
-            "Train" => FormatCase::Train,
+            "none" | "PascalCase" => Self::None,
+            "lower" => Self::Lower,
+            "UPPER" => Self::Upper,
+            "snake" => Self::Snake,
+            "SCREAMING_SNAKE" => Self::ScreamingSnake,
+            "kebab" => Self::Kebab,
+            "SCREAMING-KEBAB" => Self::ScreamingKebab,
+            "camel" => Self::Camel,
+            "camel_Snake" => Self::CamelSnake,
+            "Pascal_Snake" => Self::PascalSnake,
+            "Train" => Self::Train,
             "delimited" => {
                 if let Some(sep) = separator {
-                    FormatCase::Delimited { sep }
+                    Self::Delimited { sep }
                 } else {
                     return Err(no_sep_error());
                 }
             }
             "delimitedlower" => {
                 if let Some(sep) = separator {
-                    FormatCase::DelimitedLower { sep }
+                    Self::DelimitedLower { sep }
                 } else {
                     return Err(no_sep_error());
                 }
             }
             "DELIMITEDUPPER" => {
                 if let Some(sep) = separator {
-                    FormatCase::DelimitedUpper { sep }
+                    Self::DelimitedUpper { sep }
                 } else {
                     return Err(no_sep_error());
                 }
@@ -137,24 +138,24 @@ impl FormatCase {
 
     pub fn format(&self, s: &str) -> String {
         match self {
-            FormatCase::None => s.to_owned(),
-            FormatCase::Lower => s.to_lowercase(),
-            FormatCase::Upper => s.to_uppercase(),
-            FormatCase::Camel => s[..1].to_lowercase() + &s[1..],
-            FormatCase::Delimited { sep } => FormatCase::delimit(sep, s),
-            FormatCase::DelimitedLower { sep } => FormatCase::delimit(sep, s).to_lowercase(),
-            FormatCase::DelimitedUpper { sep } => FormatCase::delimit(sep, s).to_uppercase(),
-            FormatCase::Train => FormatCase::delimit("-", s),
-            FormatCase::PascalSnake => FormatCase::delimit("_", s),
-            FormatCase::CamelSnake => {
-                let s = FormatCase::delimit("_", s);
+            Self::None => s.to_owned(),
+            Self::Lower => s.to_lowercase(),
+            Self::Upper => s.to_uppercase(),
+            Self::Camel => s[..1].to_lowercase() + &s[1..],
+            Self::Delimited { sep } => Self::delimit(sep, s),
+            Self::DelimitedLower { sep } => Self::delimit(sep, s).to_lowercase(),
+            Self::DelimitedUpper { sep } => Self::delimit(sep, s).to_uppercase(),
+            Self::Train => Self::delimit("-", s),
+            Self::PascalSnake => Self::delimit("_", s),
+            Self::CamelSnake => {
+                let s = Self::delimit("_", s);
 
                 s[..1].to_lowercase() + &s[1..]
             }
-            FormatCase::Snake => FormatCase::delimit("_", s).to_lowercase(),
-            FormatCase::Kebab => FormatCase::delimit("-", s).to_lowercase(),
-            FormatCase::ScreamingSnake => FormatCase::delimit("_", s).to_uppercase(),
-            FormatCase::ScreamingKebab => FormatCase::delimit("-", s).to_uppercase(),
+            Self::Snake => Self::delimit("_", s).to_lowercase(),
+            Self::Kebab => Self::delimit("-", s).to_lowercase(),
+            Self::ScreamingSnake => Self::delimit("_", s).to_uppercase(),
+            Self::ScreamingKebab => Self::delimit("-", s).to_uppercase(),
         }
     }
 

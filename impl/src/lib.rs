@@ -1,6 +1,4 @@
 #![allow(non_snake_case)]
-//msrv
-#![allow(clippy::use_self)]
 mod utils;
 extern crate proc_macro;
 

@@ -27,7 +27,7 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
             }
 
             if has_not_attr {
-                get_with_attrs(&typ, data.variants)?
+                get_with_attrs(data.variants)?
             } else {
                 let mut iter = data.variants.iter().map(|p| &p.ident);
                 let first = iter.next().unwrap();
@@ -35,13 +35,13 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
 
                 quote! {
                     match self {
-                        #typ::#first => #typ::#second,
-                        #typ::#second => #typ::#first
+                        Self::#first => Self::#second,
+                        Self::#second => Self::#first
                     }
                 }
             }
         }
-        _ => get_with_attrs(&typ, data.variants)?,
+        _ => get_with_attrs(data.variants)?,
     };
 
     Ok(quote! {
@@ -54,10 +54,7 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<TokenStream> {
     })
 }
 
-pub fn get_with_attrs(
-    typ: &Ident,
-    vars: Punctuated<Variant, syn::token::Comma>,
-) -> syn::Result<TokenStream> {
+pub fn get_with_attrs(vars: Punctuated<Variant, syn::token::Comma>) -> syn::Result<TokenStream> {
     let mut idents: Vec<(Ident, Ident)> = Vec::with_capacity(vars.len());
     // for every variant, check if theres a #[not] attribute, and if there is,
     // add both the variant ident and the ident in the #[not] on the vec
@@ -83,7 +80,7 @@ pub fn get_with_attrs(
 
     Ok(quote! {
         match self {
-            #(#typ::#one => #typ::#two),*
+            #(Self::#one => Self::#two),*
         }
     })
 }

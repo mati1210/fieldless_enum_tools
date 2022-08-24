@@ -97,15 +97,15 @@ pub enum Impl {
 }
 
 impl Impl {
-    pub const fn default() -> [Impl; 7] {
+    pub const fn default() -> [Self; 7] {
         [
-            Impl::AsRefStr,
-            Impl::IntoString,
-            Impl::Display,
-            Impl::FromStr,
-            Impl::TryFromString,
-            Impl::Serialize,
-            Impl::Deserialize,
+            Self::AsRefStr,
+            Self::IntoString,
+            Self::Display,
+            Self::FromStr,
+            Self::TryFromString,
+            Self::Serialize,
+            Self::Deserialize,
         ]
     }
 
@@ -118,12 +118,12 @@ impl Impl {
             let formatted = &f.formatted;
 
             as_str.extend(quote! {
-                #typ::#ident => #formatted,
+                Self::#ident => #formatted,
             });
 
             let strings = f.iter();
             from_str.extend(quote! {
-                #(#strings )|* => #typ::#ident,
+                #(#strings )|* => Self::#ident,
             });
         }
 
@@ -148,7 +148,7 @@ impl Impl {
 
     pub fn quote_impl(self, typ: &Ident) -> TokenStream {
         match self {
-            Impl::AsRefStr => quote! {
+            Self::AsRefStr => quote! {
                 impl ::core::convert::AsRef<str> for #typ {
                     #[inline]
                     fn as_ref(&self) -> &'static str {
@@ -157,21 +157,23 @@ impl Impl {
                 }
             },
 
-            Impl::IntoString => {
-                let string = quote! {::fieldless_enum_tools::__internal::String};
+            Self::IntoString => {
                 quote! {
-                    fieldless_enum_tools::if_alloc_enabled! {
-                        impl ::core::convert::Into<#string> for #typ {
+                    fieldless_enum_tools::if_alloc_enabled! { const _: () = {
+                        use ::fieldless_enum_tools::__internal::String;
+
+                        impl ::core::convert::Into<String> for #typ {
                             #[inline]
-                            fn into(self) -> #string {
+                            fn into(self) -> String {
                                 self.__as_str().to_owned()
                             }
                         }
-                    }
+                    };
+                }
                 }
             }
 
-            Impl::Display => quote! {
+            Self::Display => quote! {
                 impl ::core::fmt::Display for #typ {
                     #[inline]
                     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
@@ -180,7 +182,7 @@ impl Impl {
                 }
             },
 
-            Impl::FromStr => quote! {
+            Self::FromStr => quote! {
                 impl ::core::str::FromStr for #typ {
                     type Err = ();
 
@@ -191,58 +193,63 @@ impl Impl {
                 }
             },
 
-            Impl::TryFromString => {
-                let string = quote! {::fieldless_enum_tools::__internal::String};
+            Self::TryFromString => {
                 quote! {
-                    ::fieldless_enum_tools::if_alloc_enabled! {
-                        impl ::core::convert::TryFrom<#string> for #typ {
+                    ::fieldless_enum_tools::if_alloc_enabled! { const _: () = {
+                        use ::fieldless_enum_tools::__internal::String;
+
+                        impl ::core::convert::TryFrom<String> for #typ {
                             type Error = ();
 
                             #[inline]
-                            fn try_from(s: #string) -> Result<Self, Self::Error> {
+                            fn try_from(s: String) -> Result<Self, Self::Error> {
                                 Self::__from_str(&s)
                             }
                         }
+                        };
                     }
                 }
             }
 
-            Impl::Serialize => {
-                let serde = quote! {::fieldless_enum_tools::__internal::serde};
+            Self::Serialize => {
                 quote! {
-                    ::fieldless_enum_tools::if_serde_enabled! {
-                        impl #serde::Serialize for #typ {
-                            fn serialize<S: #serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
+                    ::fieldless_enum_tools::if_serde_enabled! {const _: () = {
+                        use ::fieldless_enum_tools::__internal::serde;
+
+                        impl serde::Serialize for #typ {
+                            fn serialize<S: serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
                                 self.__as_str().serialize(ser)
                             }
                         }
+                        };
                     }
                 }
             }
 
-            Impl::Deserialize => {
+            Self::Deserialize => {
                 let visitor = quote::format_ident!("__{}Visitor", typ);
-                let serde = quote! {::fieldless_enum_tools::__internal::serde};
                 quote! {
-                    ::fieldless_enum_tools::if_serde_enabled! {
-                        impl<'de> #serde::Deserialize<'de> for #typ {
-                            fn deserialize<D: #serde::Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
-                                struct #visitor;
-                                impl<'de> #serde::de::Visitor<'de> for #visitor {
-                                    type Value = #typ;
+                        ::fieldless_enum_tools::if_serde_enabled! { const _: () = {
+                            use ::fieldless_enum_tools::__internal::serde;
+                            impl<'de> serde::Deserialize<'de> for #typ {
+                                fn deserialize<D: serde::Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
+                                    struct #visitor;
+                                    impl<'de> serde::de::Visitor<'de> for #visitor {
+                                        type Value = #typ;
 
-                                    fn expecting(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-                                        f.write_str(concat!["an ", stringify!(#typ)])
+                                        fn expecting(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+                                            f.write_str(concat!["an ", stringify!(#typ)])
+                                        }
+
+                                        fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E>{
+                                            <#typ>::__from_str(v).map_err(|_| E::invalid_value(serde::de::Unexpected::Str(v), &self))
+                                        }
                                     }
 
-                                    fn visit_str<E: #serde::de::Error>(self, v: &str) -> Result<Self::Value, E>{
-                                        <#typ>::__from_str(v).map_err(|_| E::invalid_value(#serde::de::Unexpected::Str(v), &self))
-                                    }
+                                    de.deserialize_str(#visitor)
                                 }
-
-                                de.deserialize_str(#visitor)
                             }
-                        }
+                        };
                     }
                 }
             }

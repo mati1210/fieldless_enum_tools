@@ -11,8 +11,8 @@ pub fn main(input: syn::DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     Ok(quote::quote! {
         impl #typ {
             #[doc = #doc]
-            pub const fn all() -> [#typ; #len] {
-                [#(#typ::#idents ,)*]
+            pub const fn all() -> [Self; #len] {
+                [#(Self::#idents ,)*]
             }
         }
     })

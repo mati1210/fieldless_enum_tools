@@ -3,7 +3,7 @@ name = "fieldless_enum_tools_internals"
 version = "0.1.0"
 edition = "2018"
 rust-version = "1.37"
-repository = "https://github.com/matheuz1210/fieldless-enum-tools"
+repository = "https://github.com/mati1210/fieldless-enum-tools"
 license = "MIT OR Apache-2.0"
 
 [dependencies]

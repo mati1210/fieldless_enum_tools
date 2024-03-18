@@ -45,7 +45,7 @@ impl Skip {
                     "Display" => Impl::Display,
                     "Serialize" => Impl::Serialize,
                     "Deserialize" => Impl::Deserialize,
-                    _ => return Err(Error::new_spanned(&ident, "not an avaliable skip!")),
+                    _ => return Err(Error::new_spanned(ident, "not an avaliable skip!")),
                 });
             } else {
                 return Err(malformed_err());

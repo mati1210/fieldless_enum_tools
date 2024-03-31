@@ -1,12 +1,12 @@
 [package]
 name = "fieldless_enum_tools_internals"
-version = "0.1.0"
-edition = "2018"
-rust-version = "1.37"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.56"
 repository = "https://github.com/mati1210/fieldless-enum-tools"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-proc-macro2 = "1.0"
-quote = "1.0"
-syn = "1.0"
+proc-macro2 = "1"
+quote = "1"
+syn = "1"

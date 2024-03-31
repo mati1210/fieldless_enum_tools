@@ -70,14 +70,6 @@ pub fn try_get_doc(attrname: &'static str, attrs: &[Attribute]) -> syn::Result<O
     Ok(docstr)
 }
 
-// Option::as_deref introduced in 1.40, msrv is 1.37
-pub fn opt_as_deref<T: std::ops::Deref>(this: &Option<T>) -> Option<&T::Target> {
-    match this.as_ref() {
-        Some(t) => Some(&**t),
-        None => None,
-    }
-}
-
 #[derive(Clone)]
 pub struct SpannedString {
     pub string: String,

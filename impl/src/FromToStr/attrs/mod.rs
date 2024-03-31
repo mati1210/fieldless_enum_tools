@@ -1,7 +1,5 @@
 use syn::{spanned::Spanned, Error, Lit, Meta, MetaList, NestedMeta};
 
-use crate::utils;
-
 macro_rules! try_get {
     ($attr:ident; $($field:ident => $typ:ty),*) => {
         if !$attr.path.is_ident("fromtostr") {
@@ -34,7 +32,6 @@ macro_rules! malformed_err {
 pub mod inner;
 pub mod outer;
 
-#[allow(dead_code)] // triggers before 1.45
 pub enum FormatCase {
     /// keep it as is
     None,
@@ -79,7 +76,7 @@ impl FormatCase {
             };
 
             match (
-                utils::opt_as_deref(&nv.path.get_ident().map(ToString::to_string)),
+                &nv.path.get_ident().map(ToString::to_string).as_deref(),
                 &nv.lit,
             ) {
                 (Some("separator"), Lit::Str(sep)) => separator = Some(sep.value()),

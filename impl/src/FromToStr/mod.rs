@@ -136,7 +136,7 @@ impl Impl {
                     }
                 }
                 #[doc(hidden)]
-                fn __from_str(s: &str) -> Result<Self, ()> {
+                fn __from_str(s: &str) -> ::core::result::Result<Self, ()> {
                     Ok(match s {
                         #from_str
                         _ => return Err(())
@@ -187,7 +187,7 @@ impl Impl {
                     type Err = ();
 
                     #[inline]
-                    fn from_str(s: &str) -> Result<Self, Self::Err> {
+                    fn from_str(s: &str) -> ::core::result::Result<Self, Self::Err> {
                        Self::__from_str(s)
                     }
                 }
@@ -202,7 +202,7 @@ impl Impl {
                             type Error = ();
 
                             #[inline]
-                            fn try_from(s: String) -> Result<Self, Self::Error> {
+                            fn try_from(s: String) -> ::core::result::Result<Self, ()> {
                                 Self::__from_str(&s)
                             }
                         }
@@ -217,7 +217,7 @@ impl Impl {
                         use ::fieldless_enum_tools::__internal::serde;
 
                         impl serde::Serialize for #typ {
-                            fn serialize<S: serde::Serializer>(&self, ser: S) -> Result<S::Ok, S::Error> {
+                            fn serialize<S: serde::Serializer>(&self, ser: S) -> ::core::result::Result<S::Ok, S::Error> {
                                 self.__as_str().serialize(ser)
                             }
                         }
@@ -232,7 +232,7 @@ impl Impl {
                         ::fieldless_enum_tools::if_serde_enabled! { const _: () = {
                             use ::fieldless_enum_tools::__internal::serde;
                             impl<'de> serde::Deserialize<'de> for #typ {
-                                fn deserialize<D: serde::Deserializer<'de>>(de: D) -> Result<Self, D::Error> {
+                                fn deserialize<D: serde::Deserializer<'de>>(de: D) -> ::core::result::Result<Self, D::Error> {
                                     struct #visitor;
                                     impl<'de> serde::de::Visitor<'de> for #visitor {
                                         type Value = #typ;
